@@ -1,8 +1,8 @@
 class Vpnonly < Formula
   desc "Route only the apps you choose through a WireGuard VPN, not the whole Mac"
   homepage "https://github.com/kanishkdan/vpnonly"
-  url "https://github.com/kanishkdan/vpnonly/releases/download/cli-1.0.4/vpnonly-cli-1.0.4.tar.gz"
-  sha256 "2ac48bf4e00904eae0fb45e9a6f0e8b25a9ec2cfab9fe6d000f160d485b4d5fe"
+  url "https://github.com/kanishkdan/vpnonly/releases/download/cli-1.0.5/vpnonly-cli-1.0.5.tar.gz"
+  sha256 "8d63ef256b5e4130faf9dff4dcc20d440eadfd1fa709219796b3fa62921e553e"
   license "MIT"
 
   depends_on "wireguard-go"
