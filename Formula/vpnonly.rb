@@ -30,14 +30,20 @@ class Vpnonly < Formula
 
         vpnonly
 
-      First time, set up a provider:
+      First time, fetch your NordVPN key:
 
-        NordVPN            #{libexec}/fetch-creds.sh
-        anything else      put your provider's .conf somewhere, then
-                           sudo #{libexec}/up.sh /path/to/provider.conf
+        #{libexec}/fetch-creds.sh
 
-      Safari and other WebKit apps cannot be routed by any per-app VPN on
-      macOS, so they are left out of the list.
+      The CLI works with NordVPN only for now. It runs the stock
+      wireguard-go, whose packets most other providers (Mullvad, Proton,
+      most self-hosted servers) drop. To try another provider anyway:
+
+        sudo #{libexec}/up.sh /path/to/provider.conf
+
+      The Mac app at https://vpnonly.app works with any WireGuard provider.
+
+      Safari and other WebKit apps can't be routed by vpnonly, so they are
+      left out of the list.
     EOS
   end
 
