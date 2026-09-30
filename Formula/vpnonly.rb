@@ -42,8 +42,9 @@ class Vpnonly < Formula
 
       The Mac app at https://vpnonly.app works with any WireGuard provider.
 
-      Safari and other WebKit apps can't be routed by vpnonly, so they are
-      left out of the list.
+      Safari can't be routed by vpnonly, so it is left out of the list. The
+      same goes for other WebKit browsers like Orion or DuckDuckGo: they still
+      show up, but their pages would skip the tunnel, so don't pick them.
     EOS
   end
 
