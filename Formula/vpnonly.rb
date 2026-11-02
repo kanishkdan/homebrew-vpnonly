@@ -5,7 +5,7 @@ class Vpnonly < Formula
   sha256 "b2abbbb95790304429f3045ebc2d382d4f56d5fae397e1a98c7f964da852899c"
   license "MIT"
 
-  depends_on "wireguard-go"
+  depends_on "go" => :build
   depends_on "wireguard-tools"
   depends_on :macos
 
@@ -14,9 +14,17 @@ class Vpnonly < Formula
     # invoked through sudo, and deliberately carries no setgid bit.
     system ENV.cc, "-O2", "-o", "vpnrun", "vpnrun.c"
 
+    # wireguard-go with VPNonly's inner-source rewrite, the same patch the Mac
+    # app ships. Stock wireguard-go only works with NordVPN, whose servers
+    # accept any inner source; everyone else's drop it. The script fetches the
+    # pinned upstream source, checks its content hash, runs the patch's tests
+    # and only then builds.
+    system "./build-wireguard-go.sh", buildpath/"wireguard-go"
+
     libexec.install "vpnonly", "up.sh", "down.sh", "run.sh", "status.sh",
-                    "fetch-creds.sh", "parse-wg.py", "vpnrun"
-    chmod 0755, Dir[libexec/"*.sh"] + [libexec/"vpnonly", libexec/"vpnrun", libexec/"parse-wg.py"]
+                    "fetch-creds.sh", "parse-wg.py", "vpnrun", "wireguard-go"
+    chmod 0755, Dir[libexec/"*.sh"] + [libexec/"vpnonly", libexec/"vpnrun",
+                                       libexec/"parse-wg.py", libexec/"wireguard-go"]
 
     # The scripts find their siblings by resolving this symlink, so linking
     # only the front end is enough.
@@ -30,17 +38,13 @@ class Vpnonly < Formula
 
         vpnonly
 
-      First time, fetch your NordVPN key:
+      First, connect a VPN. Either one works:
 
-        #{libexec}/fetch-creds.sh
+        NordVPN:        #{libexec}/fetch-creds.sh
+        any WireGuard:  vpnonly import ~/Downloads/your-provider.conf
 
-      The CLI works with NordVPN only for now. It runs the stock
-      wireguard-go, whose packets most other providers (Mullvad, Proton,
-      most self-hosted servers) drop. To try another provider anyway:
-
-        sudo #{libexec}/up.sh /path/to/provider.conf
-
-      The Mac app at https://vpnonly.app works with any WireGuard provider.
+      The second covers Mullvad, Proton, IVPN, AirVPN, your own server, or
+      any provider that gives you a WireGuard config file.
 
       Safari can't be routed by vpnonly, so it is left out of the list. The
       same goes for other WebKit browsers like Orion or DuckDuckGo: they still
@@ -53,5 +57,8 @@ class Vpnonly < Formula
     # interface it does not own. That is the behaviour worth pinning.
     output = shell_output("#{libexec}/status.sh 2>&1", 0)
     assert_match "tunnel:   down", output
+
+    # The bundled wireguard-go is the pinned version, not whatever is on PATH.
+    assert_match "wireguard-go v0.0.20250522", shell_output("#{libexec}/wireguard-go --version")
   end
 end
