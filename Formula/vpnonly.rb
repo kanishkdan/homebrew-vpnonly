@@ -1,26 +1,13 @@
 class Vpnonly < Formula
   desc "Route only the apps you choose through a WireGuard VPN, not the whole Mac"
   homepage "https://github.com/kanishkdan/vpnonly"
-  url "https://github.com/kanishkdan/vpnonly/releases/download/cli-1.0.10/vpnonly-cli-1.0.10.tar.gz"
-  sha256 "3e5a717637a46b83fc6d508adc955a03412ffb90ee71e56acb98d763c52a25b2"
+  url "https://github.com/kanishkdan/vpnonly/releases/download/cli-1.0.11/vpnonly-cli-1.0.11.tar.gz"
+  sha256 "77d1d70b55ef39a6681698f960045bbd82b192c027329e524d2bbd5cf3b1f457"
   license "MIT"
 
   depends_on "go" => :build
   depends_on "wireguard-tools"
   depends_on :macos
-
-  # The cli-1.0.10 tarball was cut by an older package-cli.sh and is missing
-  # these two files. These are the copies from the same tagged commit, pinned
-  # by hash, and install only uses them when the tarball lacks its own.
-  resource "build-wireguard-go.sh" do
-    url "https://raw.githubusercontent.com/kanishkdan/vpnonly/cli-1.0.10/build-wireguard-go.sh"
-    sha256 "f71784439f867041ecc6d41bf7ac04c4a5e695770756f4899de906cbe31d5392"
-  end
-
-  resource "wireguard-go-nat.patch" do
-    url "https://raw.githubusercontent.com/kanishkdan/vpnonly/cli-1.0.10/app-engine/wireguard-go-nat.patch"
-    sha256 "f3b01cfe08e163107be35b2f53e92aa559c84b4bb48bb0f1140c187d485abd6e"
-  end
 
   def install
     # vpnrun calls setgid/setuid, so it must already be root. It is always
@@ -32,12 +19,6 @@ class Vpnonly < Formula
     # accept any inner source; everyone else's drop it. The script fetches the
     # pinned upstream source, checks its content hash, runs the patch's tests
     # and only then builds.
-    resources.each do |r|
-      next if (buildpath/r.name).exist?
-
-      r.stage { cp Dir["*"], buildpath }
-    end
-    chmod 0755, buildpath/"build-wireguard-go.sh"
     system "./build-wireguard-go.sh", buildpath/"wireguard-go"
 
     libexec.install "vpnonly", "up.sh", "down.sh", "run.sh", "status.sh",
